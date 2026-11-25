@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hospital Management System</title>
+
+<style>
+
+/* GENERAL CSS */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(120deg, #e3efff, #f4f8fc);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* MAIN CONTAINER */
+
+.container {
+    width: 90%;
+    min-height: 88vh;
+    background: white;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+/* HEADER */
+
+.header {
+    height: 95px;
+    background: #213a56;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.logo {
+    position: absolute;
+    left: 35px;
+    width: 50px;
+    height: 50px;
+    background: white;
+    color: #16a085;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+}
+
+.header h2 {
+    font-size: 27px;
+}
+
+/* PAGE CONTENT */
+
+.page {
+    min-height: calc(88vh - 95px);
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 35px;
+}
+
+.page.active {
+    display: flex;
+}
+
+/* HOME PAGE */
+
+.home-content h1 {
+    color: #213a56;
+    font-size: 42px;
+    margin-bottom: 18px;
+}
+
+.home-content p {
+    color: #526276;
+    font-size: 20px;
+    margin-bottom: 35px;
+}
+
+/* HOME BUTTONS */
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+button {
+    cursor: pointer;
+}
+
+.home-btn {
+    min-width: 140px;
+    padding: 15px 25px;
+    border: none;
+    border-radius: 30px;
+    background: #213a56;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+    transition: 0.3s;
+}
+
+.home-btn:hover {
+    background: #16a085;
+    transform: translateY(-4px);
+}
+
+/* OTHER PAGES */
+
+.page h1 {
+    color: #213a56;
+    font-size: 32px;
+    margin-bottom: 15px;
+}
+
+.page p {
+    color: #526276;
+    font-size: 16px;
+    line-height: 1.7;
+    max-width: 650px;
+}
+
+.form-box {
+    width: 100%;
+    max-width: 420px;
+    margin-top: 20px;
+    text-align: left;
+}
+
+.form-box label {
+    display: block;
+    margin: 12px 0 6px;
+    color: #213a56;
+    font-weight: bold;
+}
+
+.form-box input,
+.form-box select,
+.form-box textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccd5df;
+    border-radius: 8px;
+    outline: none;
+    font-size: 14px;
+}
+
+.form-box input:focus,
+.form-box select:focus,
+.form-box textarea:focus {
+    border-color: #16a085;
+}
+
+.main-btn {
+    width: 100%;
+    padding: 13px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 25px;
+    background: #213a56;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.main-btn:hover {
+    background: #16a085;
+}
+
+.back-btn {
+    margin-top: 25px;
+    padding: 11px 25px;
+    border: none;
+    border-radius: 25px;
+    background: #16a085;
+    color: white;
+    font-weight: bold;
+}
+
+.message {
+    margin-top: 12px;
+    color: #138b70;
+    font-size: 14px;
+}
+
+/* MOBILE RESPONSIVE */
+
+@media(max-width: 700px) {
+
+    .container {
+        width: 100%;
+    }
+
+    .header {
+        height: 80px;
+    }
+
+    .header h2 {
+        font-size: 17px;
+        margin-left: 35px;
+    }
+
+    .logo {
+        left: 12px;
+        width: 38px;
+        height: 38px;
+        font-size: 23px;
+    }
+
+    .page {
+        min-height: calc(88vh - 80px);
+        padding: 20px;
+    }
+
+    .home-content h1 {
+        font-size: 28px;
+    }
+
+    .home-content p {
+        font-size: 15px;
+    }
+
+    .button-container {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    .home-btn {
+        width: 230px;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- HEADER -->
+
+    <header class="header">
+
+        <div class="logo">✚</div>
+
+        <h2>Hospital Management System</h2>
+
+    </header>
+
+
+    <!-- HOME PAGE -->
+
+    <section id="home" class="page active home-content">
+
+        <h1>Welcome to Our Hospital</h1>
+
+        <p>Your Health, Our Priority.</p>
+
+        <div class="button-container">
+
+            <a href = "loginop.html">
+            <button class="home-btn">
+                Login
+            </button>
+            </a>
+
+            <button class="home-btn"
+            onclick="showPage('appointment')">
+                Appointment Booking
+            </button>
+
+            <button class="home-btn"
+            onclick="showPage('about')">
+                About
+            </button>
+
+            <button class="home-btn"
+            onclick="showPage('contact')">
+                Contact
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- EMPTY LOGIN PAGE -->
+
+    <section id="login" class="page">
+    </section>
+
+
+    <!-- APPOINTMENT PAGE -->
+
+    <section id="appointment" class="page">
+
+        <h1>Book an Appointment</h1>
+
+        <p>Schedule your hospital visit easily.</p>
+
+        <form class="form-box" id="appointmentForm">
+
+            <label>Patient Name</label>
+
+            <input type="text"
+            id="patientName"
+            placeholder="Enter patient name"
+            required>
+
+            <label>Age</label>
+
+            <input type="number"
+            id="patientAge"
+            min="0"
+            max="120"
+            placeholder="Enter age"
+            required>
+
+            <label>Phone Number</label>
+
+            <input type="tel"
+            id="phone"
+            pattern="[0-9+\-\s]{7,15}"
+            placeholder="Enter phone number"
+            required>
+
+            <label>Department</label>
+
+            <select id="department" required>
+
+                <option value="">Select Department</option>
+                <option>Cardiology</option>
+                <option>Neurology</option>
+                <option>Orthopedics</option>
+                <option>Pediatrics</option>
+                <option>General Medicine</option>
+                <option>Dermatology</option>
+
+            </select>
+
+            <label>Appointment Date</label>
+
+            <input type="date"
+            id="appointmentDate"
+            required>
+
+            <button class="main-btn" type="submit">
+                Book Appointment
+            </button>
+
+            <p id="appointmentMessage" class="message"></p>
+
+        </form>
+
+        <button class="back-btn"
+        onclick="showPage('home')">
+            Back to Home
+        </button>
+
+    </section>
+
+
+    <!-- ABOUT PAGE -->
+
+    <section id="about" class="page">
+
+        <h1>About Our Hospital</h1>
+
+        <p>
+            Welcome to our Hospital Management System.
+
+            Our goal is to provide quality healthcare
+            services and make hospital management easier.
+
+            Patients can book appointments, access
+            information and contact the hospital easily.
+
+            We focus on patient care, comfort and
+            healthcare management.
+        </p>
+
+        <button class="back-btn"
+        onclick="showPage('home')">
+            Back to Home
+        </button>
+
+    </section>
+
+
+    <!-- CONTACT PAGE -->
+
+    <section id="contact" class="page">
+
+        <h1>Contact Us</h1>
+
+        <p>
+            Have any questions? Send us a message.
+        </p>
+
+        <form class="form-box" id="contactForm">
+
+            <label>Your Name</label>
+
+            <input type="text"
+            id="contactName"
+            placeholder="Enter your name"
+            required>
+
+            <label>Email</label>
+
+            <input type="email"
+            id="contactEmail"
+            placeholder="Enter your email"
+            required>
+
+            <label>Message</label>
+
+            <textarea id="contactMessage"
+            rows="4"
+            placeholder="Enter your message"
+            required></textarea>
+
+            <button class="main-btn" type="submit">
+                Send Message
+            </button>
+
+            <p id="contactStatus" class="message"></p>
+
+        </form>
+
+        <button class="back-btn"
+        onclick="showPage('home')">
+            Back to Home
+        </button>
+
+    </section>
+
+</div>
+
+
+<script>
+
+/* PAGE NAVIGATION */
+
+function showPage(pageId) {
+
+    const pages = document.querySelectorAll(".page");
+
+    pages.forEach(function(page) {
+        page.classList.remove("active");
+    });
+
+    document.getElementById(pageId)
+    .classList.add("active");
+
+}
+
+
+/* APPOINTMENT BOOKING */
+
+document.getElementById("appointmentForm")
+.addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+    const appointment = {
+
+        id: Date.now(),
+
+        name: document.getElementById("patientName").value,
+
+        age: document.getElementById("patientAge").value,
+
+        phone: document.getElementById("phone").value,
+
+        department: document.getElementById("department").value,
+
+        date: document.getElementById("appointmentDate").value
+
+    };
+
+    let appointments =
+    JSON.parse(localStorage.getItem("appointments")) || [];
+
+    appointments.push(appointment);
+
+    localStorage.setItem(
+        "appointments",
+        JSON.stringify(appointments)
+    );
+
+    document.getElementById("appointmentMessage")
+    .textContent =
+    "Appointment booked successfully!";
+
+    this.reset();
+
+});
+
+
+/* CONTACT FORM */
+
+document.getElementById("contactForm")
+.addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+    const contact = {
+
+        name: document.getElementById("contactName").value,
+
+        email: document.getElementById("contactEmail").value,
+
+        message: document.getElementById("contactMessage").value,
+
+        date: new Date().toLocaleString()
+
+    };
+
+    let messages =
+    JSON.parse(localStorage.getItem("messages")) || [];
+
+    messages.push(contact);
+
+    localStorage.setItem(
+        "messages",
+        JSON.stringify(messages)
+    );
+
+    document.getElementById("contactStatus")
+    .textContent =
+    "Your message has been saved successfully!";
+
+    this.reset();
+
+});
+
+
+/* SET MINIMUM APPOINTMENT DATE */
+
+document.getElementById("appointmentDate").min =
+new Date().toISOString().split("T")[0];
+
+</script>
+
+</body>
+</html>

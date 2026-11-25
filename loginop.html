@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Login Options</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #e5f1fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.login-box {
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+h2 {
+    color: #102c50;
+}
+
+p {
+    color: #666;
+}
+
+button {
+    background: #102c50;
+    color: white;
+    border: none;
+    padding: 13px 30px;
+    margin: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background: #2467a5;
+}
+
+.back {
+    background: #777;
+}
+</style>
+</head>
+
+<body>
+
+<div class="login-box">
+
+    <h2>Select Login Type</h2>
+
+    <p>Choose your login option</p>
+<a href = "doctorslogin.html">
+    <button >
+        Doctor
+    </button>
+</a>
+
+    <a href = "admin.html">
+    <button >
+        Admin
+    </button>
+    </a>
+
+    <br>
+
+    <a href = "home.html">
+    
+        Back to Home
+        </a>
+   
+
+</div>
+
+<script>
+function selectLogin(type) {
+    alert(type + " selected");
+}
+
+function goHome() {
+    window.location.href = "index.html";
+}
+</script>
+
+</body>
+</html>

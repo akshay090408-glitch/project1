@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #eaf2ff;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+}
+
+.header {
+    background: #1769aa;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    border-radius: 10px;
+}
+
+.summary {
+    display: flex;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.summary-box {
+    flex: 1;
+    background: #e3f2fd;
+    padding: 20px;
+    text-align: center;
+    border-radius: 10px;
+}
+
+.summary-box h2 {
+    color: #1769aa;
+    font-size: 28px;
+}
+
+.section-title {
+    margin: 25px 0 15px;
+    color: #1769aa;
+}
+
+.search-area {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+    flex-wrap: wrap;
+}
+
+input, select {
+    padding: 11px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    flex: 1;
+    min-width: 150px;
+}
+
+.appointment {
+    background: #f5f9ff;
+    border-left: 5px solid #1769aa;
+    padding: 18px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+}
+
+.appointment h3 {
+    color: #1769aa;
+    margin-bottom: 10px;
+}
+
+.appointment p {
+    margin: 8px 0;
+}
+
+.payment {
+    background: #eaf7ee;
+    padding: 12px;
+    margin-top: 12px;
+    border-radius: 8px;
+}
+
+.paid {
+    color: green;
+    font-weight: bold;
+}
+
+.pending {
+    color: #d97706;
+    font-weight: bold;
+}
+
+.status {
+    font-weight: bold;
+    color: #1769aa;
+}
+
+button {
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin: 8px 5px 0 0;
+}
+
+button:hover {
+    opacity: 0.85;
+}
+
+.blue-btn {
+    background: #1769aa;
+}
+
+.red-btn {
+    background: #dc3545;
+}
+
+.empty {
+    text-align: center;
+    padding: 25px;
+    color: gray;
+}
+
+.doctor-box {
+    background: #f5f9ff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+@media(max-width:600px) {
+    .summary {
+        flex-direction: column;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>Admin Dashboard</h1>
+        <p>Hospital Management System</p>
+    </div>
+
+    <!-- SUMMARY -->
+
+    <div class="summary">
+
+        <div class="summary-box">
+            <h2 id="totalAppointments">0</h2>
+            <p>Total Appointments</p>
+        </div>
+
+        <div class="summary-box">
+            <h2 id="totalPatients">0</h2>
+            <p>Total Patients</p>
+        </div>
+
+        <div class="summary-box">
+            <h2 id="paidCount">0</h2>
+            <p>Paid Fees</p>
+        </div>
+
+    </div>
+
+    <!-- DOCTOR DETAILS -->
+
+    <h2 class="section-title">Doctor Details</h2>
+
+    <div id="doctorDetails"></div>
+
+    <!-- SEARCH AND FILTER -->
+
+    <h2 class="section-title">Patient Appointment Details</h2>
+
+    <div class="search-area">
+
+        <input
+            type="text"
+            id="searchPatient"
+            placeholder="Search by patient name or phone"
+            oninput="displayAppointments()">
+
+        <select id="doctorFilter" onchange="displayAppointments()">
+            <option value="">All Doctors</option>
+        </select>
+
+    </div>
+
+    <div id="appointmentList"></div>
+
+    <button class="blue-btn" onclick="displayAppointments()">
+        Refresh Appointments
+    </button>
+
+</div>
+
+<script>
+
+// FIXED OP FEE
+const OP_FEE = 200;
+
+// DOCTOR DETAILS
+const doctors = [
+    {
+        name: "Dr. Ravi Kumar",
+        department: "General Medicine"
+    },
+    {
+        name: "Dr. Priya",
+        department: "Cardiology"
+    },
+    {
+        name: "Dr. Suresh",
+        department: "Orthopedics"
+    },
+    {
+        name: "Dr. Anjali",
+        department: "Dermatology"
+    },
+    {
+        name: "Dr. Kiran",
+        department: "Pediatrics"
+    }
+];
+
+// GET APPOINTMENTS
+function getAppointments() {
+    return JSON.parse(localStorage.getItem("appointments")) || [];
+}
+
+// SAVE APPOINTMENTS
+function saveAppointments(appointments) {
+    localStorage.setItem(
+        "appointments",
+        JSON.stringify(appointments)
+    );
+}
+
+// DISPLAY DOCTOR DETAILS
+function displayDoctors() {
+
+    const box = document.getElementById("doctorDetails");
+
+    box.innerHTML = "";
+
+    doctors.forEach(function(doctor) {
+
+        const div = document.createElement("div");
+
+        div.className = "doctor-box";
+
+        const name = document.createElement("h3");
+        name.textContent = doctor.name;
+
+        const department = document.createElement("p");
+        department.textContent =
+            "Department: " + doctor.department;
+
+        div.appendChild(name);
+        div.appendChild(department);
+
+        box.appendChild(div);
+
+    });
+
+}
+
+// LOAD DOCTOR FILTER
+function loadDoctorFilter() {
+
+    const filter = document.getElementById("doctorFilter");
+
+    filter.innerHTML = '<option value="">All Doctors</option>';
+
+    doctors.forEach(function(doctor) {
+
+        const option = document.createElement("option");
+
+        option.value = doctor.name;
+
+        option.textContent = doctor.name;
+
+        filter.appendChild(option);
+
+    });
+
+}
+
+// DISPLAY APPOINTMENTS
+function displayAppointments() {
+
+    const appointments = getAppointments();
+
+    const payments =
+        JSON.parse(localStorage.getItem("opPayments")) || {};
+
+    const search =
+        document.getElementById("searchPatient").value.toLowerCase();
+
+    const selectedDoctor =
+        document.getElementById("doctorFilter").value;
+
+    const list = document.getElementById("appointmentList");
+
+    list.innerHTML = "";
+
+    document.getElementById("totalAppointments").textContent =
+        appointments.length;
+
+    document.getElementById("totalPatients").textContent =
+        appointments.length;
+
+    document.getElementById("paidCount").textContent =
+        appointments.filter(function(patient) {
+            return payments[patient.id] === "Paid";
+        }).length;
+
+    const filtered = appointments.filter(function(patient) {
+
+        const matchesSearch =
+            String(patient.name || "").toLowerCase().includes(search) ||
+            String(patient.phone || "").includes(search);
+
+        const matchesDoctor =
+            !selectedDoctor || patient.doctor === selectedDoctor;
+
+        return matchesSearch && matchesDoctor;
+
+    });
+
+    if (filtered.length === 0) {
+
+        list.innerHTML =
+            '<div class="empty">No matching appointments found.</div>';
+
+        return;
+    }
+
+    filtered.forEach(function(patient) {
+
+        const index = appointments.findIndex(function(item) {
+            return item.id === patient.id;
+        });
+
+        const card = document.createElement("div");
+
+        card.className = "appointment";
+
+        const heading = document.createElement("h3");
+
+        heading.textContent = "Queue Number: " + (index + 1);
+
+        card.appendChild(heading);
+
+        const details = [
+            ["Patient Name", patient.name],
+            ["Age", patient.age],
+            ["Phone Number", patient.phone],
+            ["Department", patient.department],
+            ["Appointment Date", patient.date]
+        ];
+
+        details.forEach(function(item) {
+
+            const p = document.createElement("p");
+
+            p.textContent = item[0] + ": " + item[1];
+
+            card.appendChild(p);
+
+        });
+
+        // DOCTOR ASSIGNMENT
+
+        const doctorLabel = document.createElement("p");
+
+        doctorLabel.textContent = "Assign Doctor:";
+
+        card.appendChild(doctorLabel);
+
+        const doctorSelect = document.createElement("select");
+
+        doctors.forEach(function(doctor) {
+
+            const option = document.createElement("option");
+
+            option.value = doctor.name;
+
+            option.textContent =
+                doctor.name + " - " + doctor.department;
+
+            doctorSelect.appendChild(option);
+
+        });
+
+        doctorSelect.value = patient.doctor || "";
+
+        if (!patient.doctor) {
+            doctorSelect.selectedIndex = -1;
+        }
+
+        doctorSelect.onchange = function() {
+
+            const all = getAppointments();
+
+            const current = all.find(function(item) {
+                return item.id === patient.id;
+            });
+
+            if (current) {
+                current.doctor = doctorSelect.value;
+                saveAppointments(all);
+                displayAppointments();
+            }
+
+        };
+
+        card.appendChild(doctorSelect);
+
+        // APPOINTMENT STATUS
+
+        const statusLabel = document.createElement("p");
+
+        statusLabel.textContent = "Appointment Status:";
+
+        card.appendChild(statusLabel);
+
+        const statusSelect = document.createElement("select");
+
+        ["Booked", "Completed", "Cancelled"].forEach(function(status) {
+
+            const option = document.createElement("option");
+
+            option.value = status;
+            option.textContent = status;
+
+            statusSelect.appendChild(option);
+
+        });
+
+        statusSelect.value = patient.status || "Booked";
+
+        statusSelect.onchange = function() {
+
+            const all = getAppointments();
+
+            const current = all.find(function(item) {
+                return item.id === patient.id;
+            });
+
+            if (current) {
+                current.status = statusSelect.value;
+                saveAppointments(all);
+                displayAppointments();
+            }
+
+        };
+
+        card.appendChild(statusSelect);
+
+        // OP PAYMENT
+
+        const paymentBox = document.createElement("div");
+
+        paymentBox.className = "payment";
+
+        const fee = document.createElement("p");
+
+        fee.textContent = "OP Consultation Fee: ₹" + OP_FEE;
+
+        paymentBox.appendChild(fee);
+
+        const isPaid = payments[patient.id] === "Paid";
+
+        const paymentStatus = document.createElement("p");
+
+        paymentStatus.textContent =
+            "Payment Status: " + (isPaid ? "Paid" : "Pending");
+
+        paymentStatus.className = isPaid ? "paid" : "pending";
+
+        paymentBox.appendChild(paymentStatus);
+
+        if (!isPaid) {
+
+            const payButton = document.createElement("button");
+
+            payButton.className = "blue-btn";
+            payButton.textContent = "Mark as Paid";
+
+            payButton.onclick = function() {
+
+                payments[patient.id] = "Paid";
+
+                localStorage.setItem(
+                    "opPayments",
+                    JSON.stringify(payments)
+                );
+
+                displayAppointments();
+
+            };
+
+            paymentBox.appendChild(payButton);
+
+        } else {
+
+            const receiptButton = document.createElement("button");
+
+            receiptButton.className = "blue-btn";
+            receiptButton.textContent = "Generate Receipt";
+
+            receiptButton.onclick = function() {
+                generateReceipt(patient, index);
+            };
+
+            paymentBox.appendChild(receiptButton);
+
+        }
+
+        card.appendChild(paymentBox);
+
+        // CANCEL APPOINTMENT
+
+        if ((patient.status || "Booked") !== "Cancelled") {
+
+            const cancelButton = document.createElement("button");
+
+            cancelButton.className = "red-btn";
+            cancelButton.textContent = "Cancel Appointment";
+
+            cancelButton.onclick = function() {
+
+                if (confirm("Cancel this appointment?")) {
+
+                    const all = getAppointments();
+
+                    const current = all.find(function(item) {
+                        return item.id === patient.id;
+                    });
+
+                    if (current) {
+                        current.status = "Cancelled";
+                        saveAppointments(all);
+                        displayAppointments();
+                    }
+
+                }
+
+            };
+
+            card.appendChild(cancelButton);
+
+        }
+
+        list.appendChild(card);
+
+    });
+
+}
+
+// GENERATE RECEIPT
+function generateReceipt(patient, index) {
+
+    const receiptWindow = window.open("", "_blank");
+
+    if (!receiptWindow) {
+        alert("Please allow pop-ups to generate receipt.");
+        return;
+    }
+
+    const receiptNumber = "OP-" + patient.id;
+
+    receiptWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>OP Fee Receipt</title>
+            <style>
+                body {
+                    font-family: Arial;
+                    padding: 30px;
+                }
+
+                .receipt {
+                    max-width: 500px;
+                    margin: auto;
+                    border: 2px solid #1769aa;
+                    padding: 25px;
+                }
+
+                h1 {
+                    text-align: center;
+                    color: #1769aa;
+                }
+
+                p {
+                    margin: 15px 0;
+                }
+
+                button {
+                    padding: 12px;
+                    background: #1769aa;
+                    color: white;
+                    border: none;
+                }
+
+                @media print {
+                    button { display: none; }
+                }
+            </style>
+        </head>
+
+        <body>
+            <div class="receipt">
+
+                <h1>Hospital Management System</h1>
+
+                <h3>OP Consultation Fee Receipt</h3>
+
+                <hr>
+
+                <p>Receipt Number: ${escapeHTML(receiptNumber)}</p>
+
+                <p>Queue Number: ${index + 1}</p>
+
+                <p>Patient Name: ${escapeHTML(patient.name)}</p>
+
+                <p>Doctor: ${escapeHTML(patient.doctor || "Not assigned")}</p>
+
+                <p>Department: ${escapeHTML(patient.department)}</p>
+
+                <p>Appointment Date: ${escapeHTML(patient.date)}</p>
+
+                <p>OP Fee: ₹${OP_FEE}</p>
+
+                <p>Payment Status: PAID</p>
+
+                <hr>
+
+                <h3>Thank You!</h3>
+
+                <button onclick="window.print()">Print Receipt</button>
+
+            </div>
+        </body>
+        </html>
+    `);
+
+    receiptWindow.document.close();
+
+}
+
+// ESCAPE HTML
+function escapeHTML(value) {
+
+    return String(value ?? "").replace(/[&<>"']/g, function(char) {
+
+        return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        }[char];
+
+    });
+
+}
+
+// INITIALIZE
+displayDoctors();
+loadDoctorFilter();
+displayAppointments();
+
+</script>
+
+</body>
+</html>

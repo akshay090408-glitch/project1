@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Doctors</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #eaf2f8;
+}
+
+header {
+    background: #087f8c;
+    color: white;
+    text-align: center;
+    padding: 25px;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 35px auto;
+    padding: 20px;
+}
+
+.container h2 {
+    text-align: center;
+    color: #087f8c;
+    margin-bottom: 25px;
+}
+
+.doctor-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.doctor-card {
+    background: white;
+    padding: 25px;
+    text-align: center;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px #0001;
+}
+
+.doctor-card h3 {
+    color: #087f8c;
+    margin-bottom: 10px;
+}
+
+.doctor-card p {
+    margin-bottom: 18px;
+    color: #555;
+}
+
+button {
+    background: #087f8c;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 15px;
+}
+
+button:hover {
+    background: #05616b;
+}
+
+.back {
+    display: block;
+    width: fit-content;
+    margin: 25px auto;
+    text-decoration: none;
+    background: #263b53;
+    color: white;
+    padding: 12px 25px;
+    border-radius: 7px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>Hospital Management System</h1>
+    <p>Our Doctors</p>
+</header>
+
+<div class="container">
+
+    <h2>Select Your Doctor</h2>
+
+    <div class="doctor-list">
+
+        <div class="doctor-card">
+            <h3>Dr. Ravi Kumar</h3>
+            <p>General Medicine</p>
+            <button onclick="location.href='doctorlogin1.html'">
+                Open Doctor Account
+            </button>
+        </div>
+
+        <div class="doctor-card">
+            <h3>Dr. Priya</h3>
+            <p>Cardiology</p>
+            <button onclick="location.href='doctorlogin2.html'">
+                Open Doctor Account
+            </button>
+        </div>
+
+        <div class="doctor-card">
+            <h3>Dr. Suresh</h3>
+            <p>Orthopedics</p>
+            <button onclick="location.href='doctorlogin3.html'">
+                Open Doctor Account
+            </button>
+        </div>
+
+        <div class="doctor-card">
+            <h3>Dr. Anjali</h3>
+            <p>Dermatology</p>
+            <button onclick="location.href='doctorlogin4.html'">
+                Open Doctor Account
+            </button>
+        </div>
+
+        <div class="doctor-card">
+            <h3>Dr. Kiran</h3>
+            <p>Pediatrics</p>
+            <button onclick="location.href='doctorlogin5.html'">
+                Open Doctor Account
+            </button>
+        </div>
+
+    </div>
+
+    <a href="loginop.html" class="back">Back to Home</a>
+
+</div>
+
+</body>
+</html>

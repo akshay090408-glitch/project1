@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doctor Dashboard</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #eaf2ff;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1000px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+}
+
+.header {
+    background: #1769aa;
+    color: white;
+    padding: 25px;
+    text-align: center;
+    border-radius: 10px;
+}
+
+.header h1 {
+    margin-bottom: 12px;
+}
+
+.doctor-name {
+    font-size: 23px;
+    font-weight: bold;
+}
+
+.doctor-department {
+    margin-top: 5px;
+}
+
+.summary {
+    background: #e3f2fd;
+    padding: 20px;
+    text-align: center;
+    margin: 20px 0;
+    border-radius: 10px;
+}
+
+.summary h2 {
+    color: #1769aa;
+    font-size: 35px;
+}
+
+.section-title {
+    margin: 25px 0 15px;
+    color: #1769aa;
+}
+
+.appointment {
+    background: #f5f9ff;
+    border-left: 5px solid #1769aa;
+    padding: 18px;
+    margin-bottom: 18px;
+    border-radius: 8px;
+}
+
+.appointment h3 {
+    color: #1769aa;
+    margin-bottom: 12px;
+}
+
+.appointment p {
+    margin: 8px 0;
+}
+
+select, input, textarea {
+    width: 100%;
+    padding: 11px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-family: Arial;
+}
+
+textarea {
+    min-height: 75px;
+    resize: vertical;
+}
+
+button {
+    background: #1769aa;
+    color: white;
+    padding: 11px 18px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin: 8px 5px 0 0;
+}
+
+button:hover {
+    background: #0d4778;
+}
+
+.prescription {
+    background: #eef7ff;
+    padding: 15px;
+    margin-top: 15px;
+    border-radius: 8px;
+}
+
+.status {
+    font-weight: bold;
+    color: #1769aa;
+}
+
+.empty {
+    text-align: center;
+    padding: 25px;
+    color: gray;
+}
+
+.saved-message {
+    color: green;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- DOCTOR HEADER -->
+
+    <div class="header">
+
+        <h1>Doctor Dashboard</h1>
+
+        <div class="doctor-name" id="doctorName">
+            Dr. Ravi Kumar
+        </div>
+
+        <div class="doctor-department" id="doctorDepartment">
+            General Medicine
+        </div>
+
+    </div>
+
+    <!-- SUMMARY -->
+
+    <div class="summary">
+
+        <h2 id="totalAppointments">0</h2>
+
+        <p>Assigned Patient Appointments</p>
+
+    </div>
+
+    <!-- APPOINTMENT QUEUE -->
+
+    <h2 class="section-title">
+        Patient Appointment Queue
+    </h2>
+
+    <div id="appointmentQueue"></div>
+
+    <button onclick="displayAppointments()">
+        Refresh Queue
+    </button>
+
+</div>
+
+<script>
+
+// DOCTOR DETAILS
+// Change these details for each doctor.
+
+const DOCTOR_NAME = "Dr. Ravi Kumar";
+
+const DOCTOR_DEPARTMENT = "General Medicine";
+
+document.getElementById("doctorName").textContent =
+    DOCTOR_NAME;
+
+document.getElementById("doctorDepartment").textContent =
+    DOCTOR_DEPARTMENT;
+
+
+// GET APPOINTMENTS
+function getAppointments() {
+
+    return JSON.parse(
+        localStorage.getItem("appointments")
+    ) || [];
+
+}
+
+
+// DISPLAY APPOINTMENTS
+function displayAppointments() {
+
+    const allAppointments = getAppointments();
+
+    // Show only appointments assigned to this doctor
+    const appointments = allAppointments.filter(function(patient) {
+
+        return patient.doctor === DOCTOR_NAME &&
+               (patient.status || "Booked") !== "Cancelled";
+
+    });
+
+    const queue = document.getElementById("appointmentQueue");
+
+    queue.innerHTML = "";
+
+    document.getElementById("totalAppointments").textContent =
+        appointments.length;
+
+    if (appointments.length === 0) {
+
+        queue.innerHTML =
+            '<div class="empty">No appointments assigned to you yet.</div>';
+
+        return;
+    }
+
+    appointments.forEach(function(patient, index) {
+
+        const card = document.createElement("div");
+
+        card.className = "appointment";
+
+        const heading = document.createElement("h3");
+
+        heading.textContent =
+            "Queue Number: " + (index + 1);
+
+        card.appendChild(heading);
+
+
+        // PATIENT DETAILS
+
+        const details = [
+            ["Patient Name", patient.name],
+            ["Age", patient.age],
+            ["Phone Number", patient.phone],
+            ["Department", patient.department],
+            ["Appointment Date", patient.date]
+        ];
+
+        details.forEach(function(item) {
+
+            const p = document.createElement("p");
+
+            p.textContent =
+                item[0] + ": " + item[1];
+
+            card.appendChild(p);
+
+        });
+
+
+        // APPOINTMENT STATUS
+
+        const statusLabel = document.createElement("p");
+
+        statusLabel.textContent = "Appointment Status:";
+
+        card.appendChild(statusLabel);
+
+        const statusSelect = document.createElement("select");
+
+        ["Booked", "Completed"].forEach(function(status) {
+
+            const option = document.createElement("option");
+
+            option.value = status;
+            option.textContent = status;
+
+            statusSelect.appendChild(option);
+
+        });
+
+        statusSelect.value = patient.status || "Booked";
+
+        statusSelect.onchange = function() {
+
+            const all = getAppointments();
+
+            const current = all.find(function(item) {
+
+                return item.id === patient.id;
+
+            });
+
+            if (current) {
+
+                current.status = statusSelect.value;
+
+                localStorage.setItem(
+                    "appointments",
+                    JSON.stringify(all)
+                );
+
+            }
+
+        };
+
+        card.appendChild(statusSelect);
+
+
+        // PRESCRIPTION FORM
+
+        const prescriptionBox = document.createElement("div");
+
+        prescriptionBox.className = "prescription";
+
+        const title = document.createElement("h3");
+
+        title.textContent = "Generate Prescription";
+
+        prescriptionBox.appendChild(title);
+
+
+        const diagnosis = document.createElement("textarea");
+
+        diagnosis.placeholder = "Enter diagnosis";
+
+        diagnosis.id = "diagnosis" + patient.id;
+
+        prescriptionBox.appendChild(diagnosis);
+
+
+        const medicines = document.createElement("textarea");
+
+        medicines.placeholder = "Enter medicine details";
+
+        medicines.id = "medicines" + patient.id;
+
+        prescriptionBox.appendChild(medicines);
+
+
+        const dosage = document.createElement("textarea");
+
+        dosage.placeholder = "Enter dosage instructions";
+
+        dosage.id = "dosage" + patient.id;
+
+        prescriptionBox.appendChild(dosage);
+
+
+        const instructions = document.createElement("textarea");
+
+        instructions.placeholder = "Enter additional instructions";
+
+        instructions.id = "instructions" + patient.id;
+
+        prescriptionBox.appendChild(instructions);
+
+
+        // SAVE PRESCRIPTION
+
+        const saveButton = document.createElement("button");
+
+        saveButton.textContent = "Save Prescription";
+
+        saveButton.onclick = function() {
+
+            savePrescription(patient);
+
+        };
+
+        prescriptionBox.appendChild(saveButton);
+
+
+        // PRINT PRESCRIPTION
+
+        const printButton = document.createElement("button");
+
+        printButton.textContent = "Print Prescription";
+
+        printButton.onclick = function() {
+
+            printPrescription(patient);
+
+        };
+
+        prescriptionBox.appendChild(printButton);
+
+
+        const message = document.createElement("p");
+
+        message.id = "message" + patient.id;
+
+        message.className = "saved-message";
+
+        prescriptionBox.appendChild(message);
+
+
+        card.appendChild(prescriptionBox);
+
+        queue.appendChild(card);
+
+        loadPrescription(patient);
+
+    });
+
+}
+
+
+// SAVE PRESCRIPTION
+function savePrescription(patient) {
+
+    const diagnosis =
+        document.getElementById("diagnosis" + patient.id).value;
+
+    const medicines =
+        document.getElementById("medicines" + patient.id).value;
+
+    const dosage =
+        document.getElementById("dosage" + patient.id).value;
+
+    const instructions =
+        document.getElementById("instructions" + patient.id).value;
+
+    if (!diagnosis.trim() || !medicines.trim() || !dosage.trim()) {
+
+        alert("Please enter diagnosis, medicines and dosage.");
+
+        return;
+
+    }
+
+    let prescriptions =
+        JSON.parse(localStorage.getItem("prescriptions")) || {};
+
+    prescriptions[patient.id] = {
+
+        patientName: patient.name,
+
+        doctorName: DOCTOR_NAME,
+
+        department: DOCTOR_DEPARTMENT,
+
+        diagnosis: diagnosis,
+
+        medicines: medicines,
+
+        dosage: dosage,
+
+        instructions: instructions,
+
+        date: new Date().toLocaleDateString()
+
+    };
+
+    localStorage.setItem(
+        "prescriptions",
+        JSON.stringify(prescriptions)
+    );
+
+    document.getElementById("message" + patient.id).textContent =
+        "Prescription saved successfully!";
+
+}
+
+
+// LOAD SAVED PRESCRIPTION
+function loadPrescription(patient) {
+
+    let prescriptions =
+        JSON.parse(localStorage.getItem("prescriptions")) || {};
+
+    const saved = prescriptions[patient.id];
+
+    if (!saved) return;
+
+    document.getElementById("diagnosis" + patient.id).value =
+        saved.diagnosis || "";
+
+    document.getElementById("medicines" + patient.id).value =
+        saved.medicines || "";
+
+    document.getElementById("dosage" + patient.id).value =
+        saved.dosage || "";
+
+    document.getElementById("instructions" + patient.id).value =
+        saved.instructions || "";
+
+}
+
+
+// PRINT PRESCRIPTION
+function printPrescription(patient) {
+
+    let prescriptions =
+        JSON.parse(localStorage.getItem("prescriptions")) || {};
+
+    const saved = prescriptions[patient.id];
+
+    if (!saved) {
+
+        alert("Please save the prescription first.");
+
+        return;
+
+    }
+
+    const printWindow = window.open("", "_blank");
+
+    if (!printWindow) {
+
+        alert("Please allow pop-ups to print.");
+
+        return;
+
+    }
+
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Prescription</title>
+
+            <style>
+                body {
+                    font-family: Arial;
+                    padding: 30px;
+                }
+
+                .receipt {
+                    max-width: 650px;
+                    margin: auto;
+                    border: 2px solid #1769aa;
+                    padding: 25px;
+                    border-radius: 10px;
+                }
+
+                h1 {
+                    color: #1769aa;
+                    text-align: center;
+                }
+
+                h3 {
+                    margin-top: 20px;
+                }
+
+                p {
+                    margin: 12px 0;
+                    white-space: pre-wrap;
+                }
+            </style>
+        </head>
+
+        <body>
+
+            <div class="receipt">
+
+                <h1>Hospital Management System</h1>
+
+                <h2>Medical Prescription</h2>
+
+                <hr>
+
+                <p><b>Doctor:</b> ${escapeHTML(saved.doctorName)}</p>
+
+                <p><b>Department:</b> ${escapeHTML(saved.department)}</p>
+
+                <p><b>Patient:</b> ${escapeHTML(saved.patientName)}</p>
+
+                <p><b>Date:</b> ${escapeHTML(saved.date)}</p>
+
+                <hr>
+
+                <h3>Diagnosis</h3>
+
+                <p>${escapeHTML(saved.diagnosis)}</p>
+
+                <h3>Medicines</h3>
+
+                <p>${escapeHTML(saved.medicines)}</p>
+
+                <h3>Dosage</h3>
+
+                <p>${escapeHTML(saved.dosage)}</p>
+
+                <h3>Instructions</h3>
+
+                <p>${escapeHTML(saved.instructions)}</p>
+
+                <hr>
+
+                <p>Doctor Signature: __________________</p>
+
+                <button onclick="window.print()">Print</button>
+
+            </div>
+
+        </body>
+        </html>
+    `);
+
+    printWindow.document.close();
+
+}
+
+
+// ESCAPE HTML
+function escapeHTML(value) {
+
+    return String(value ?? "").replace(/[&<>"']/g, function(char) {
+
+        return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        }[char];
+
+    });
+
+}
+
+
+// LOAD DOCTOR APPOINTMENTS
+displayAppointments();
+
+</script>
+
+</body>
+</html>

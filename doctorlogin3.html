@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dr. Suresh Dashboard</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #eaf2f8;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+}
+
+.header {
+    background: #087f8c;
+    color: white;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.header h1 { margin-bottom: 8px; }
+
+.summary, .patient {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 18px;
+    box-shadow: 0 3px 8px #0001;
+}
+
+.patient h3 {
+    color: #087f8c;
+    margin-bottom: 12px;
+}
+
+.details {
+    line-height: 1.9;
+    margin-bottom: 12px;
+}
+
+input, textarea, select {
+    width: 100%;
+    padding: 10px;
+    margin: 7px 0 12px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+}
+
+textarea { min-height: 65px; }
+
+button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    background: #087f8c;
+    color: white;
+    cursor: pointer;
+    margin: 5px 5px 5px 0;
+}
+
+button:hover { background: #05616b; }
+
+.refresh { background: #263b53; }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<div class="header">
+    <h1>Dr. Suresh</h1>
+    <p>Department: Orthopedics</p>
+    <p>Doctor Dashboard</p>
+</div>
+
+<div class="summary">
+    <h2>Appointment Queue</h2>
+    <h3>Total Patients: <span id="total">0</span></h3>
+    <button class="refresh" onclick="loadPatients()">Refresh Queue</button>
+</div>
+
+<div id="patientList"></div>
+
+</div>
+
+<script>
+const DOCTOR_NAME = "Dr. Suresh";
+const DOCTOR_DEPARTMENT = "Orthopedics";
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, function(char) {
+        return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        }[char];
+    });
+}
+
+function loadPatients() {
+    const allAppointments =
+        JSON.parse(localStorage.getItem("appointments")) || [];
+
+    const appointments = allAppointments.filter(function(patient) {
+        return patient.doctor === DOCTOR_NAME &&
+            (patient.status || "Booked") !== "Cancelled";
+    });
+
+    const prescriptions =
+        JSON.parse(localStorage.getItem("prescriptions")) || {};
+
+    document.getElementById("total").innerText = appointments.length;
+
+    const list = document.getElementById("patientList");
+    list.innerHTML = "";
+
+    if (appointments.length === 0) {
+        list.innerHTML = "<h3>No appointments assigned yet.</h3>";
+        return;
+    }
+
+    appointments.forEach(function(patient, index) {
+        const p = prescriptions[patient.id] || {};
+
+        const card = document.createElement("div");
+        card.className = "patient";
+
+        card.innerHTML = `
+            <h3>Queue Number: ${index + 1}</h3>
+
+            <div class="details">
+                <b>Patient Name:</b> ${escapeHTML(patient.name)}<br>
+                <b>Age:</b> ${escapeHTML(patient.age)}<br>
+                <b>Phone:</b> ${escapeHTML(patient.phone)}<br>
+                <b>Department:</b> ${escapeHTML(patient.department)}<br>
+                <b>Appointment Date:</b> ${escapeHTML(patient.date)}
+            </div>
+
+            <label>Appointment Status</label>
+            <select id="status-${patient.id}">
+                <option value="Booked" ${patient.status !== "Completed" ? "selected" : ""}>Booked</option>
+                <option value="Completed" ${patient.status === "Completed" ? "selected" : ""}>Completed</option>
+            </select>
+
+            <button onclick="updateStatus(${patient.id})">Update Status</button>
+
+            <hr>
+            <h3>Prescription</h3>
+
+            <label>Diagnosis</label>
+            <textarea id="diagnosis-${patient.id}">${escapeHTML(p.diagnosis || "")}</textarea>
+
+            <label>Medicines</label>
+            <textarea id="medicines-${patient.id}">${escapeHTML(p.medicines || "")}</textarea>
+
+            <label>Dosage</label>
+            <textarea id="dosage-${patient.id}">${escapeHTML(p.dosage || "")}</textarea>
+
+            <label>Instructions</label>
+            <textarea id="instructions-${patient.id}">${escapeHTML(p.instructions || "")}</textarea>
+
+            <button onclick="savePrescription(${patient.id})">Save Prescription</button>
+            <button onclick="printPrescription(${patient.id})">Print Prescription</button>
+        `;
+
+        list.appendChild(card);
+    });
+}
+
+function updateStatus(id) {
+    let appointments =
+        JSON.parse(localStorage.getItem("appointments")) || [];
+
+    const patient = appointments.find(p => p.id === id);
+
+    if (patient && patient.doctor === DOCTOR_NAME) {
+        patient.status = document.getElementById("status-" + id).value;
+
+        localStorage.setItem("appointments", JSON.stringify(appointments));
+        alert("Appointment status updated!");
+        loadPatients();
+    }
+}
+
+function savePrescription(id) {
+    const appointments =
+        JSON.parse(localStorage.getItem("appointments")) || [];
+
+    const patient = appointments.find(p =>
+        p.id === id && p.doctor === DOCTOR_NAME
+    );
+
+    if (!patient) return;
+
+    const prescriptions =
+        JSON.parse(localStorage.getItem("prescriptions")) || {};
+
+    prescriptions[id] = {
+        patientName: patient.name,
+        doctorName: DOCTOR_NAME,
+        department: DOCTOR_DEPARTMENT,
+        diagnosis: document.getElementById("diagnosis-" + id).value,
+        medicines: document.getElementById("medicines-" + id).value,
+        dosage: document.getElementById("dosage-" + id).value,
+        instructions: document.getElementById("instructions-" + id).value,
+        date: new Date().toLocaleDateString()
+    };
+
+    localStorage.setItem("prescriptions", JSON.stringify(prescriptions));
+    alert("Sample prescription saved!");
+}
+
+function printPrescription(id) {
+    const prescriptions =
+        JSON.parse(localStorage.getItem("prescriptions")) || {};
+
+    const p = prescriptions[id];
+
+    if (!p || p.doctorName !== DOCTOR_NAME) {
+        alert("Please save the prescription first!");
+        return;
+    }
+
+    const w = window.open("", "_blank");
+    if (!w) {
+        alert("Please allow pop-ups to print.");
+        return;
+    }
+
+    w.document.write(`
+        <html><head><title>Sample Prescription</title></head>
+        <body style="font-family:Arial;padding:30px">
+        <h1>Hospital Management System</h1>
+        <hr>
+        <h2>Sample Prescription</h2>
+        <h3>${escapeHTML(p.doctorName)}</h3>
+        <p>${escapeHTML(p.department)}</p>
+        <hr>
+        <p><b>Patient:</b> ${escapeHTML(p.patientName)}</p>
+        <p><b>Date:</b> ${escapeHTML(p.date)}</p>
+        <p><b>Diagnosis:</b> ${escapeHTML(p.diagnosis)}</p>
+        <p><b>Medicines:</b> ${escapeHTML(p.medicines)}</p>
+        <p><b>Dosage:</b> ${escapeHTML(p.dosage)}</p>
+        <p><b>Instructions:</b> ${escapeHTML(p.instructions)}</p>
+        <br><br>
+        <p>Doctor's Signature: ______________</p>
+        </body></html>
+    `);
+
+    w.document.close();
+    w.print();
+}
+
+loadPatients();
+</script>
+</body>
+</html>
